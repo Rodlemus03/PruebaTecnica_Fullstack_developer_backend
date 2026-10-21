@@ -13,7 +13,9 @@
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
     "db:migrate:undo": "sequelize-cli db:migrate:undo:all",
-    "db:import": "node scripts/importExcel.js"
+    "db:import": "node scripts/importExcel.js",
+    "pretest": "sequelize-cli db:migrate --env test",
+    "test": "jest --runInBand"
   },
   "license": "UNLICENSED",
   "dependencies": {
@@ -26,6 +28,12 @@
     "sequelize": "^6.37.8"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.6.5"
+    "jest": "^30.5.2",
+    "sequelize-cli": "^6.6.5",
+    "supertest": "^7.3.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 30000
   }
 }
