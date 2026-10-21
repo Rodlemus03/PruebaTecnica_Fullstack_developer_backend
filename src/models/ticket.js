@@ -11,6 +11,21 @@ module.exports = (sequelize, DataTypes) => {
         onDelete: 'CASCADE',
       });
     }
+
+    static totalsAttributes() {
+      return [
+        [
+          sequelize.literal(
+            '(SELECT ROUND(COALESCE(SUM(d.total), 0), 3) FROM ticket_details d WHERE d.ticket_id = "Ticket"."id")',
+          ),
+          'total',
+        ],
+        [
+          sequelize.literal('(SELECT COUNT(*)::int FROM ticket_details d WHERE d.ticket_id = "Ticket"."id")'),
+          'lineCount',
+        ],
+      ];
+    }
   }
 
   Ticket.init(

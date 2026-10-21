@@ -4,18 +4,6 @@ const HttpError = require('../utils/httpError');
 
 const catalogAttributes = ['id', 'code', 'name'];
 
-const totalAttribute = [
-  sequelize.literal(
-    '(SELECT ROUND(COALESCE(SUM(d.total), 0), 3) FROM ticket_details d WHERE d.ticket_id = "Ticket"."id")',
-  ),
-  'total',
-];
-
-const lineCountAttribute = [
-  sequelize.literal('(SELECT COUNT(*)::int FROM ticket_details d WHERE d.ticket_id = "Ticket"."id")'),
-  'lineCount',
-];
-
 const headerIncludes = [
   { model: Supplier, as: 'supplier', attributes: catalogAttributes },
   { model: Land, as: 'land', attributes: catalogAttributes },
@@ -77,7 +65,7 @@ async function findTickets(filters) {
   const { page, limit, sort } = filters;
 
   const { rows, count } = await Ticket.findAndCountAll({
-    attributes: ['id', 'code', 'date', totalAttribute, lineCountAttribute],
+    attributes: ['id', 'code', 'date', ...Ticket.totalsAttributes()],
     include: headerIncludes,
     where: buildWhere(filters),
     order: buildOrder(sort),
@@ -98,7 +86,7 @@ async function findTickets(filters) {
 
 async function findTicketById(id) {
   const ticket = await Ticket.findByPk(id, {
-    attributes: ['id', 'code', 'date', totalAttribute, lineCountAttribute, 'createdAt', 'updatedAt'],
+    attributes: ['id', 'code', 'date', ...Ticket.totalsAttributes(), 'createdAt', 'updatedAt'],
     include: [
       ...headerIncludes,
       {
