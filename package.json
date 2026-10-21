@@ -12,12 +12,14 @@
     "dev": "node --watch src/server.js",
     "db:create": "sequelize-cli db:create",
     "db:migrate": "sequelize-cli db:migrate",
-    "db:migrate:undo": "sequelize-cli db:migrate:undo:all"
+    "db:migrate:undo": "sequelize-cli db:migrate:undo:all",
+    "db:import": "node scripts/importExcel.js"
   },
   "license": "UNLICENSED",
   "dependencies": {
     "cors": "^2.8.6",
     "dotenv": "^18.0.8",
+    "exceljs": "^4.4.0",
     "express": "^5.3.0",
     "pg": "^8.23.1",
     "pg-hstore": "^2.3.4",
