@@ -2,6 +2,35 @@
 
 API REST para gestionar los tickets de compra del archivo `tickets-prueba.xlsx` y calcular los pagos semanales a proveedores. Construida con Node.js, Express, PostgreSQL y Sequelize.
 
+## Ejecución rápida
+
+Hay dos formas de levantar todo el sistema (base de datos, API y frontend) desde este repositorio. En las dos, la aplicación queda en `http://localhost:5173` y la API en `http://localhost:3000/api`, con el Excel ya importado.
+
+### Con Docker
+
+```bash
+git clone https://github.com/Rodlemus03/PruebaTecnica_Fullstack_developer_backend.git
+cd PruebaTecnica_Fullstack_developer_backend
+docker-compose up
+```
+
+La primera vez construye las imágenes, crea las tablas e importa el Excel. El frontend se construye desde su repositorio de GitHub. PostgreSQL corre dentro de Docker y no usa el puerto 5432 de tu equipo, así que no choca con una instalación local.
+
+- `docker-compose down` detiene todo y conserva los datos.
+- `docker-compose down -v` borra también la base de datos; al volver a levantar se importa el Excel otra vez.
+- Para construir el frontend desde una copia local, agrega `FRONTEND_CONTEXT=../PruebaTecnica_Fullstack_developer_frontend` al archivo `.env` y usa `docker-compose up --build`.
+
+### Sin Docker
+
+Se necesita Node.js 22.22 o superior y PostgreSQL encendido.
+
+- **Windows:** doble clic en `iniciar.bat`.
+- **Linux o macOS:** `./iniciar.sh`.
+
+El script pide la contraseña del usuario `postgres` la primera vez y la guarda en `.env`. Luego instala las dependencias, crea la base de datos, aplica las migraciones, importa el Excel si la base está vacía y levanta la API y el frontend. Si el frontend no está clonado junto a este repositorio, lo descarga con git en `../PruebaTecnica_Fullstack_developer_frontend`. `Ctrl+C` detiene todo.
+
+Los pasos manuales están en las secciones siguientes.
+
 ## Requisitos
 
 - Node.js 20 o superior
@@ -44,6 +73,7 @@ npm run db:import
 
 - `db:create` crea la base de datos, `db:migrate` crea las tablas con las migraciones de Sequelize y `db:import` carga `data/tickets-prueba.xlsx`.
 - Para importar otro archivo: `npm run db:import -- ruta/al/archivo.xlsx`.
+- `npm run db:import -- --if-empty` importa solo si la base no tiene tickets. Así lo usan Docker y los scripts de inicio para no deshacer cambios hechos desde la aplicación.
 - La importación valida todo el archivo antes de escribir y se ejecuta en una sola transacción: si hay un error, muestra la fila y la columna y no guarda nada.
 - Se puede ejecutar varias veces sin duplicar información. Los catálogos y tickets se actualizan por código y las líneas de cada ticket del Excel se reemplazan. Los tickets creados desde la API no se modifican.
 - `npm run db:migrate:undo` revierte todas las migraciones.
@@ -116,7 +146,7 @@ Decisiones tomadas a partir del análisis del Excel (751 filas, 367 tickets, 59 
 
 ```
 data/            Excel original
-scripts/         importación desde la línea de comandos
+scripts/         importación del Excel y arranque local (runLocal.js)
 src/
   config/        variables de entorno y conexión
   controllers/   manejo de peticiones HTTP
@@ -129,4 +159,6 @@ src/
   utils/         semanas ISO y errores HTTP
   validators/    validación de parámetros y cuerpos
 tests/           pruebas con Jest y Supertest
+Dockerfile, docker-compose.yml   ejecución con Docker
+iniciar.bat, iniciar.sh          ejecución sin Docker
 ```
