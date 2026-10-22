@@ -1,5 +1,5 @@
 const path = require('path');
-const { sequelize } = require('../src/models');
+const { sequelize, Ticket } = require('../src/models');
 const { importTickets } = require('../src/import/importTickets');
 
 const defaultFile = path.join(__dirname, '..', 'data', 'tickets-prueba.xlsx');
@@ -18,10 +18,20 @@ function printErrors(details) {
 }
 
 async function main() {
-  const filePath = path.resolve(process.argv[2] || defaultFile);
-  console.log(`Importando ${filePath}`);
+  const args = process.argv.slice(2);
+  const onlyIfEmpty = args.includes('--if-empty');
+  const filePath = path.resolve(args.find((arg) => !arg.startsWith('--')) || defaultFile);
 
   try {
+    if (onlyIfEmpty) {
+      const existing = await Ticket.count();
+      if (existing > 0) {
+        console.log(`La base ya tiene ${existing} tickets, no se vuelve a importar el Excel.`);
+        return;
+      }
+    }
+
+    console.log(`Importando ${filePath}`);
     const summary = await importTickets(filePath);
 
     console.log('Importación completada');
