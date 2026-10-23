@@ -51,9 +51,10 @@ function ensureFrontend() {
 function askHidden(question) {
   return new Promise((resolve) => {
     const rl = readline.createInterface({ input: process.stdin, output: process.stdout, terminal: true });
-    process.stdout.write(question);
-    rl._writeToOutput = () => {};
-    rl.question('', (answer) => {
+    rl._writeToOutput = (text) => {
+      if (text.startsWith(question)) rl.output.write(question);
+    };
+    rl.question(question, (answer) => {
       rl.close();
       process.stdout.write('\n');
       resolve(answer);
